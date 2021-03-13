@@ -1,0 +1,180 @@
+openapi: 3.0.1
+info:
+  title: API Antecipação de Recebíveis
+  description: 'Esta é a especificação técnica da API de Antecipação de Recebíveis para implementação por clientes (debtors) do Banco Randon.'
+  contact:
+    email: developers@randon.com.br
+  version: 1.0.0
+tags:
+- name: document
+  description: Gestão de Títulos de Contas a Pagar relacionados a Notas Fiscais
+paths:
+  /documents/list:
+    get:
+      tags:
+      - document
+      summary: Listar todos Títulos
+      description: Lista todos os Títulos de Contas a Pagar disponíveis para serem antecipados
+      operationId: listDocuments
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArrayOfDocumentExtended'
+  /documents/{idSeller}/list:
+    get:
+      tags:
+      - document
+      summary: Listar Títulos de um Fornecedor
+      operationId: listSellerDocuments
+      parameters:
+      - name: idSeller
+        in: path
+        description: CNPJ do Fornecedor dos Títulos de Contas a Pagar
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArrayOfDocumentExtended'
+        '400':
+          description: Invalid seller id (CNPJ inválido)
+          content: {}
+        '404':
+          description: Seller not found (Fornecedor não encontrado)
+          content: {}
+  /documents/claim:
+    post:
+      tags:
+      - document
+      summary: Registrar Títulos como antecipados
+      description: Registra os Títulos de Contas a Pagar como antecipados para formalizar a alteração de titularidade
+      operationId: setDocumentsClaimed
+      requestBody:
+        description: Contrato contendo a Lista de Títulos de Contas a Pagar antecipados (*vendidos*, *claimed*)
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Contract'
+        required: true
+      responses:
+        200:
+          description: OK
+          content: {}
+        404:
+          description: Documents not found (Documentos não encontrados)
+          content: 
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArrayOfDocumentsBasic'
+components:
+  schemas:
+    DocumentBasic:
+      type: object
+      required:
+      - invoiceId
+      - invoiceSeries
+      - sellerId
+      - debtorId
+      - documentId
+      - documentInstallment
+      - dueDate
+      - amount
+      properties:
+        documentId:
+          type: string
+          description: "Identificador do Título de Contas a Pagar do Cedente (Fornecedor ou Beneficiário) que emitiu a Nota Fiscal"
+        documentInstallment:
+          type: integer
+          description: "Número da Parcela do Título de Contas a Pagar"
+        invoiceId:
+          type: integer
+          description: "Número da Nota Fiscal"
+          format: int64
+        invoiceSeries:
+          type: integer
+          description: "Série da Nota Fiscal"
+          format: int64
+        sellerId:
+          type: string
+          description: "Número do CNPJ do Cedente do Título (Fornecedor ou Beneficiário) que emitiu a Nota Fiscal (apenas algarismos)"
+          example: "00000000000191"
+    DocumentExtended:
+      allOf:
+        - $ref: '#/components/schemas/DocumentBasic'
+        - type: object
+          required:
+          - invoiceId
+          - invoiceSeries
+          - sellerId
+          - debtorId
+          - documentId
+          - documentInstallment
+          - dueDate
+          - amount
+          properties:
+            debtorId:
+              type: string
+              description: "Número do CNPJ do Sacado do Título (Cliente ou Pagador) contra o qual a Nota Fiscal foi emitida (apenas algarismos)"
+              example: "00000000000191"
+            invoiceAccessKey:
+              type: string
+              description: "Chave de Acesso da Nota Fiscal eletrônica (44 dígitos)"
+              example: "43201092016757006122552000000163666691778287"
+            invoiceDate:
+              type: string
+              description: "Data de emissão da Nota Fiscal"
+              example: "2021-01-01"
+              format: date
+            dueDate:
+              type: string
+              description: "Data de vencimento da Parcela do Título de Contas a Receber"
+              example: "2021-01-01"
+              format: date
+            amount:
+              type: number
+              description: "Valor da Parcela do Título de Contas a Pagar"
+              format: double
+            taxes:
+              type: number
+              description: "Valor dos Impostos da Parcela do Título de Contas a Pagar"
+              format: double
+    ArrayOfDocumentsBasic:
+        type: array
+        items:
+          $ref: '#/components/schemas/DocumentBasic'
+    ArrayOfDocumentExtended:
+      type: array
+      items:
+        $ref: '#/components/schemas/DocumentExtended'
+    Contract:
+      type: object
+      required:
+      - contractId
+      - invoiceSeries
+      - sellerId
+      - debtorId
+      - documentId
+      - documentInstallment
+      - dueDate
+      - amount
+      properties:
+        contractId:
+          type: string
+          description: "Número do Contrato de Antecipação de Recebíveis"
+        contractDate:
+          type: string
+          description: "Data do Contrato de Antecipação de Recebíveis"
+          example: "2021-01-01"
+          format: date
+        documents:
+          type: array
+          description: "Títulos de Contas a Pagar"
+          items:
+            $ref: '#/components/schemas/DocumentBasic'
