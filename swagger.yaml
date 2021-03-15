@@ -14,7 +14,7 @@ paths:
       tags:
       - document
       summary: Listar todos Títulos
-      description: Lista todos os Títulos de Contas a Pagar disponíveis para serem antecipados
+      description: Lista todos os Títulos de Contas a Pagar do Sacado disponíveis para serem antecipados pelos Cedentes
       operationId: listDocuments
       responses:
         '200':
@@ -89,7 +89,7 @@ components:
       properties:
         documentId:
           type: string
-          description: "Identificador do Título de Contas a Pagar do Cedente (Fornecedor ou Beneficiário) que emitiu a Nota Fiscal"
+          description: "Identificador do Título de Contas a Pagar relacionado à Nota Fiscal"
         documentInstallment:
           type: integer
           description: "Número da Parcela do Título de Contas a Pagar"
@@ -103,7 +103,7 @@ components:
           format: int64
         sellerId:
           type: string
-          description: "Número do CNPJ do Cedente do Título (Fornecedor ou Beneficiário) que emitiu a Nota Fiscal (apenas algarismos)"
+          description: "Número do CNPJ  (apenas algarismos) do Cedente do Título (Fornecedor ou Beneficiário) que emitiu a Nota Fiscal"
           example: "00000000000191"
     DocumentExtended:
       allOf:
@@ -134,7 +134,7 @@ components:
               format: date
             dueDate:
               type: string
-              description: "Data de vencimento da Parcela do Título de Contas a Receber"
+              description: "Data de vencimento da Parcela do Título de Contas a Pagar"
               example: "2021-01-01"
               format: date
             netAmount:
