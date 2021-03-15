@@ -117,7 +117,7 @@ components:
           - documentId
           - documentInstallment
           - dueDate
-          - amount
+          - netAmount
           properties:
             debtorId:
               type: string
