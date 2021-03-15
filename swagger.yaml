@@ -174,7 +174,6 @@ components:
           example: "2021-01-01"
           format: date
         documents:
-          type: array
           description: "Títulos de Contas a Pagar"
-          items:
-            $ref: '#/components/schemas/DocumentBasic'
+          allOf:
+          - $ref: '#/components/schemas/ArrayOfDocumentsBasic'
