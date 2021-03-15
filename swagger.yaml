@@ -137,14 +137,9 @@ components:
               description: "Data de vencimento da Parcela do Título de Contas a Receber"
               example: "2021-01-01"
               format: date
-            amount:
+            netAmount:
               type: number
-              description: "Valor da Parcela do Título de Contas a Pagar"
-              format: double
-            taxes:
-              type: number
-              description: "Valor dos Impostos da Parcela do Título de Contas a Pagar"
-              format: double
+              description: "Valor Líquido da Parcela do Título de Contas a Pagar, ou seja, o valor possível de ser antecipado pelo Cedente"
     ArrayOfDocumentsBasic:
         type: array
         items:
