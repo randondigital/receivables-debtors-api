@@ -85,7 +85,7 @@ components:
       - documentId
       - documentInstallment
       - dueDate
-      - amount
+      - netAmount
       properties:
         documentId:
           type: string
@@ -105,19 +105,16 @@ components:
           type: string
           description: "Número do CNPJ  (apenas algarismos) do Cedente do Título (Fornecedor ou Beneficiário) que emitiu a Nota Fiscal"
           example: "00000000000191"
+        netAmount:
+          type: number
+          description: "Valor Líquido da Parcela do Título de Contas a Pagar, ou seja, o valor possível de ser antecipado pelo Cedente"
     DocumentExtended:
       allOf:
         - $ref: '#/components/schemas/DocumentBasic'
         - type: object
           required:
-          - invoiceId
-          - invoiceSeries
-          - sellerId
           - debtorId
-          - documentId
-          - documentInstallment
           - dueDate
-          - netAmount
           properties:
             debtorId:
               type: string
@@ -137,9 +134,6 @@ components:
               description: "Data de vencimento da Parcela do Título de Contas a Pagar"
               example: "2021-01-01"
               format: date
-            netAmount:
-              type: number
-              description: "Valor Líquido da Parcela do Título de Contas a Pagar, ou seja, o valor possível de ser antecipado pelo Cedente"
     ArrayOfDocumentsBasic:
         type: array
         items:
@@ -152,13 +146,7 @@ components:
       type: object
       required:
       - contractId
-      - invoiceSeries
-      - sellerId
-      - debtorId
-      - documentId
-      - documentInstallment
-      - dueDate
-      - amount
+      - documents
       properties:
         contractId:
           type: string
