@@ -23,14 +23,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ArrayOfDocumentExtended'
-  /documents/{idSeller}/list:
+  /documents/{sellerId}/list:
     get:
       tags:
       - document
       summary: Listar Títulos de um Fornecedor
       operationId: listSellerDocuments
       parameters:
-      - name: idSeller
+      - name: sellerId
         in: path
         description: CNPJ do Fornecedor dos Títulos de Contas a Pagar
         required: true
@@ -103,7 +103,7 @@ components:
           format: int64
         sellerId:
           type: string
-          description: "Número do CNPJ  (apenas algarismos) do Cedente do Título (Fornecedor ou Beneficiário) que emitiu a Nota Fiscal"
+          description: "Número do CNPJ (apenas algarismos) do Cedente do Título (Fornecedor ou Beneficiário) que emitiu a Nota Fiscal"
           example: "00000000000191"
         netAmount:
           type: number
@@ -160,3 +160,62 @@ components:
           description: "Títulos de Contas a Pagar"
           allOf:
           - $ref: '#/components/schemas/ArrayOfDocumentsBasic'
+    Seller:
+      type: object
+      required:
+      - id
+      - name
+      - startDate
+      properties:
+        id:
+          type: string
+          description: "Número do CNPJ (apenas algarismos) do Cedente do Título (Fornecedor ou Beneficiário) que emitiu a Nota Fiscal"
+          example: "00000000000191"
+        name:
+          type: string
+          description: "Razão social"
+        startDate:
+          type: string
+          description: "Data de Constituição da Empresa"
+          example: "2021-01-01"
+          format: date
+        annualRevenue:
+          type: number
+          description: "Faturamento anual em Reais"
+        addressStreet:
+          type: string
+          description: "Logradouro"
+
+      TODO: 
+      # Dados dos fornecedores
+      # 	•Razão social (texto)
+      # 	•CNPJ (numérico) 
+      # 	•Data de constituição (data)
+      # 	•Faturamento (numérico)
+      # 	•Porte da empresa (texto) // microempresa ( <= 360 mil) , pequena empresa ( > 360 mil e <= 4.8 milhões), média empresa (> 4.8 milhões e <= 300 milhões) , grande (acima de 300 milhões)
+      # 	•Endereço da sede e de correspondência se necessário (texto)
+      # 	•Telefone (numérico)
+      # 	•E-mail (texto)
+      # 	•Quadro societário com % de participação (nome, percentual)
+      # 	•Data do Aceite (data)
+      # 	•Login do Aceite (login da Delta)
+      # 	Aceite dos termos e LGPD - Compliance Randon está redigindo o aceite
+
+      # 	Documentação da empresa
+      # 	se for LTDA
+      # 	- contrato social (última atualização)
+
+      # 	se for S.A
+      # 	- estatuto social
+      # 	- ata eleição da diretoria
+      # 	- quadro societário
+
+      # 	se for EMPRESÁRIO INDIVIDUAL
+      # 	- requerimento do empresário
+
+      # 	se for MEI
+      # 	- ccmei (certificado da condição do microempreendedor individual)
+
+      # 	se for EIRELI
+      # 	- contrato social
+      # 	- ata eleição da diretoria
