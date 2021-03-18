@@ -219,3 +219,22 @@ components:
       # 	se for EIRELI
       # 	- contrato social
       # 	- ata eleição da diretoria
+
+      # Representantes legais (O preenchimento se faz obrigatório para os sócios com participação societária acima de 25%, representantes legais e procuradores caso exista)
+      # 	Nome Completo (texto)
+      # 	CPF (numérico)
+      # 	Data de Nascimento (data)             
+      # 	Número do documento de identificação (numérico)
+      # 	Nome da mãe (texto)
+      # 	Nacionalidade (texto)
+      # 	Endereço (texto)
+      # 	E-Mail(texto)
+      # 	Telefone (texto)
+      # 	Profissão (texto)
+      # 	Salário/Renda Mensal (numérico)
+      # 	Estado Civil (texto)
+
+      # 	Arquivos representantes legais e procuradores
+      # 	CNH ou RG;
+      # 	Comprovante de endereço;
+      # 	Procuração caso tenha;		
