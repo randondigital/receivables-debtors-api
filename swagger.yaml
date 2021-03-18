@@ -1,10 +1,10 @@
 openapi: 3.0.1
 info:
   title: API Antecipação de Recebíveis
-  description: 'Esta é a especificação técnica da API de Antecipação de Recebíveis para implementação por clientes (debtors) do Banco Randon.'
+  description: 'Esta é a especificação técnica da API de Antecipação de Recebíveis para implementação por Parceiros (debtors) do Banco Randon.'
   contact:
     email: developers@randon.com.br
-  version: 1.0.0
+  version: 1.0.1
 tags:
 - name: document
   description: Gestão de Títulos de Contas a Pagar relacionados a Notas Fiscais
@@ -23,14 +23,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ArrayOfDocumentExtended'
-  /documents/{idSeller}/list:
+  /documents/{sellerId}/list:
     get:
       tags:
       - document
       summary: Listar Títulos de um Fornecedor
       operationId: listSellerDocuments
       parameters:
-      - name: idSeller
+      - name: sellerId
         in: path
         description: CNPJ do Fornecedor dos Títulos de Contas a Pagar
         required: true
@@ -73,6 +73,22 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ArrayOfDocumentsBasic'
+  /sellers:
+    get:
+      tags:
+      - document
+      summary: Listar todos os Fornecedores
+      description: Lista todos os Fornecedores (Sellers) com relacionamento com o Parceiro que deram consentimento para o compartilhamento de dados com o Banco Randon
+      operationId: getSellers
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Seller'
 components:
   schemas:
     DocumentBasic:
@@ -103,7 +119,7 @@ components:
           format: int64
         sellerId:
           type: string
-          description: "Número do CNPJ  (apenas algarismos) do Cedente do Título (Fornecedor ou Beneficiário) que emitiu a Nota Fiscal"
+          description: "Número do CNPJ (apenas algarismos) do Cedente do Título (Fornecedor ou Beneficiário) que emitiu a Nota Fiscal"
           example: "00000000000191"
         netAmount:
           type: number
@@ -118,7 +134,7 @@ components:
           properties:
             debtorId:
               type: string
-              description: "Número do CNPJ do Sacado do Título (Cliente ou Pagador) contra o qual a Nota Fiscal foi emitida (apenas algarismos)"
+              description: "Número do CNPJ do Sacado do Título (Cliente ou Pagador ou Parceiro) contra o qual a Nota Fiscal foi emitida (apenas algarismos)"
               example: "00000000000191"
             invoiceAccessKey:
               type: string
@@ -160,3 +176,234 @@ components:
           description: "Títulos de Contas a Pagar"
           allOf:
           - $ref: '#/components/schemas/ArrayOfDocumentsBasic'
+    Partner:
+      description: "Sócio de empresa"
+      required:
+      - name
+      allOf:
+        - $ref: '#/components/schemas/NaturalPersonBasic'
+        - type: object
+          required:
+          - dateOfBirth
+          - nationality
+          - civilStatus
+          - motherName
+          - address
+          - monthlyIncome
+          properties:
+            partnershipEquity:
+              type: string
+              description: "Percentual de participação do sócio na empresa"
+    Proxy:
+      description: "Representante legal da empresa"
+      required:
+      - name
+      allOf:
+        - $ref: '#/components/schemas/NaturalPersonExtended'
+        - type: object
+          required:
+          - fileId
+          - fileAddress
+          properties:
+            fileId:
+              type: string
+              description: "Arquivo de Documento de Identificação Pessoal (CNH ou RG)"
+            fileAddress:
+              type: string
+              description: "Arquivo de Comprovante de Endereço"
+            fileProxy:
+              type: string
+              description: "Arquivo de Procuração do Representante legal"
+    NaturalPersonBasic:
+      type: object
+      description: "Dados cadastrais (profile) de uma Pessoa Física"
+      required:
+      - id
+      - name
+      properties:
+        id:
+          type: string
+          description: "Número do CPF (Cadastro de Pessoa Física) somente em algarismos (11 caracteres)"
+          example: "12345678910"
+        name:
+          type: string
+          description: "Nome Completo da Pessoa"
+    NaturalPersonExtended:
+      allOf:
+        - $ref: '#/components/schemas/NaturalPersonBasic'
+        - type: object
+          required:
+          - dateOfBirth
+          - nationality
+          - civilStatus
+          - motherName
+          - address
+          - monthlyIncome
+          - profession
+          properties:
+            dateOfBirth:
+              type: string
+              description: "Data de Nascimento no formato (YYYY-MM-DD)"
+              example: "1980-05-28"
+              format: date
+            nationality:
+              type: string
+              description: "Nacionalidade"
+              example: "Brasileira"
+            civilStatus:
+              type: string
+              description: "Estado Civil"
+              enum:
+              - single
+              - married
+              - divorced
+              - widowed
+            motherName:
+              type: string
+              description: "Nome Completo da Mãe"
+            profession:
+              type: string
+              description: "Profissão"
+            address:
+              type: object
+              description: "Endereço Residencial"
+              allOf:
+                - $ref: '#/components/schemas/Address'
+            monthlyIncome:
+              type: number
+              description: "Renda ou Salário Mensal"
+              format: double
+              example: "8930.37"
+    Seller:
+      type: object
+      description: "Cedente do Título (Fornecedor ou Beneficiário)"
+      required:
+      - id
+      - name
+      - startDate
+      - type
+      - annualRevenue
+      - address
+      - consent
+      - incorporationDocument
+      - partners
+      - proxies
+      properties:
+        id:
+          type: string
+          description: "Número do CNPJ (apenas algarismos) do Cedente do Título (Fornecedor ou Beneficiário) que emitiu a Nota Fiscal"
+          example: "00000000000191"
+        name:
+          type: string
+          description: "Razão social"
+        startDate:
+          type: string
+          description: "Data de Constituição da Empresa"
+          example: "2021-01-01"
+          format: date
+        type:
+          type: string
+          description: "Natureza Jurídica da Empresa"
+          enum:
+          - responsabilidadeLimitada
+          - sociedadeAnonima
+          - empresarioIndividual
+          - microEmpresarioIndividual
+          - requerimentoEmpresario
+          - ccmei
+        annualRevenue:
+          type: number
+          description: "Faturamento do últimos 12 meses em Reais"       
+        address:
+          type: object
+          description: "Endereço da sede da empresa"
+          allOf:
+            - $ref: '#/components/schemas/Address'
+        consent:
+          type: object
+          description: "Consentimento para compartilhamento de informações"
+          allOf:
+            - $ref: '#/components/schemas/Consent'
+        incorporationDocuments:
+          type: array
+          description: "Documento(s) de incorporação"
+          items:
+            $ref: '#/components/schemas/IncorporationDocument'
+        partners:
+          type: array
+          description: "Sócios da Empresa"
+          items:
+            $ref: '#/components/schemas/Partner'
+        proxies:
+          type: array
+          description: "Representantes legais"
+          items:
+            $ref: '#/components/schemas/Proxy'
+    Address:
+      type: object
+      required:
+      - line1
+      - number
+      - city
+      - state
+      - zipCode
+      - phone
+      - email
+      properties:
+        line1:
+          type: string
+          description: "Logradouro (Rua, Avenida, etc.)"
+        number:
+          type: string
+          description: "Número"
+        line2:
+          type: string
+          description: "Complemento"
+        city:
+          type: string
+          description: "Cidade"
+        state:
+          type: string
+          description: "Sigla da Unidade Federativa (RS, SC, SP, etc.)"
+        zipCode:
+          type: string
+          description: "CEP"
+        phone:
+          type: string
+          description: "Telefone no formato 2 caracteres para DD e 8 ou 9 caracteres para o número (DDNNNNNNNNN)"
+          example: "5432394600"
+        email:
+          type: string
+          description: "E-mail"
+    Consent:
+      type: object
+      description: "Consentimento (aceite) do Fornecedor (Seller) para que o Parceiro (Debtor) compartilhe informações com o Banco Randon."
+      required:
+      - name
+      properties:
+        date:
+          type: string
+          description: "Data do consentimento"
+          example: "2021-01-01"
+          format: date
+        userId:
+          type: string
+          description: "Identificador de usuário (no sistema do Parceiro) que realizou o consentimento"
+    IncorporationDocument:
+      type: object
+      description: "Documento de constituição de uma Empresa"
+      properties:
+        file:
+          type: string
+          description: "Arquivo do Documento"
+          format: binary
+        type:
+          type: string
+          description: "Tipo de Documento"
+          enum:
+          - contratoSocial
+          - estatutoSocial
+          - ataEleicaoDiretoria
+          - quadroSocietario
+          - requerimentoEmpresario
+          - ccmei
