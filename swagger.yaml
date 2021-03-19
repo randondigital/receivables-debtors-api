@@ -269,6 +269,13 @@ components:
               description: "Endereço Residencial"
               allOf:
                 - $ref: '#/components/schemas/Address'
+            phone:
+              type: string
+              description: "Telefone no formato 2 caracteres para DD e 8 ou 9 caracteres para o número (DDNNNNNNNNN)"
+              example: "5432394600"
+            email:
+              type: string
+              description: "E-mail"
             monthlyIncome:
               type: number
               description: "Renda ou Salário Mensal"
@@ -336,7 +343,7 @@ components:
             $ref: '#/components/schemas/Partner'
         proxies:
           type: array
-          description: "Representantes legais"
+          description: "Representantes legais (É obrigatório informar os dados dos sócios com participação societária acima de 25%, representantes legais e procuradores caso exista)"
           items:
             $ref: '#/components/schemas/Proxy'
     Address:
@@ -347,8 +354,6 @@ components:
       - city
       - state
       - zipCode
-      - phone
-      - email
       properties:
         line1:
           type: string
@@ -368,13 +373,6 @@ components:
         zipCode:
           type: string
           description: "CEP"
-        phone:
-          type: string
-          description: "Telefone no formato 2 caracteres para DD e 8 ou 9 caracteres para o número (DDNNNNNNNNN)"
-          example: "5432394600"
-        email:
-          type: string
-          description: "E-mail"
     Consent:
       type: object
       description: "Consentimento (aceite) do Fornecedor (Seller) para que o Parceiro (Debtor) compartilhe informações com o Banco Randon."
