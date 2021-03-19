@@ -373,6 +373,11 @@ components:
           description: "Representantes legais (É obrigatório informar os dados dos sócios com participação societária acima de 25%, representantes legais e procuradores caso exista)"
           items:
             $ref: '#/components/schemas/Proxy'
+        clients:
+          type: array
+          description: "Principais clientes (pelo menos 3)"
+          items:
+            $ref: '#/components/schemas/Client'
     Address:
       type: object
       required:
@@ -422,3 +427,14 @@ components:
           type: string
           description: "Arquivo do Documento"
           format: binary
+    Client:
+      type: object
+      description: "Cliente de Fornecedor"
+      properties:
+        name:
+          type: string
+          description: "Nome do cliente"
+        shareOfRevenue:
+          type: number
+          format: double
+          description: "Percentual do faturamento que esse cliente concentra."
