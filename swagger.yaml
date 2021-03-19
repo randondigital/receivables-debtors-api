@@ -291,8 +291,10 @@ components:
       - type
       - annualRevenue
       - address
+      - phone
+      - email
       - consent
-      - incorporationDocument
+      - incorporationDocuments
       - partners
       - proxies
       properties:
@@ -326,6 +328,13 @@ components:
           description: "Endereço da sede da empresa"
           allOf:
             - $ref: '#/components/schemas/Address'
+        phone:
+          type: string
+          description: "Telefone no formato 2 caracteres para DD e 8 ou 9 caracteres para o número (DDNNNNNNNNN)"
+          example: "5432394600"
+        email:
+          type: string
+          description: "E-mail"
         consent:
           type: object
           description: "Consentimento para compartilhamento de informações"
@@ -333,7 +342,25 @@ components:
             - $ref: '#/components/schemas/Consent'
         incorporationDocuments:
           type: array
-          description: "Documento(s) de incorporação"
+          description: "Documento de constituição de uma Empresa.
+                        <br>
+                        LTDA:<br>
+                        - Contrato Social (última atualização)<br>
+                        <br>
+                        S.A.:<br>
+                        - Estatuto Social<br>
+                        - Ata Eleição da Diretoria<br>
+                        - Quadro Societário<br>
+                        <br>
+                        Empresário Individual:<br>
+                        - Requerimento do Empresário<br>
+                        <br>
+                        MEI:<br>
+                        - CCMEI (Certificado da Condição do Microempreendedor Individual)<br>
+                        <br>
+                        EIRELI:<br>
+                        - Contrato Social<br>
+                        - Ata Eleição da Diretoria"          
           items:
             $ref: '#/components/schemas/IncorporationDocument'
         partners:
@@ -395,13 +422,3 @@ components:
           type: string
           description: "Arquivo do Documento"
           format: binary
-        type:
-          type: string
-          description: "Tipo de Documento"
-          enum:
-          - contratoSocial
-          - estatutoSocial
-          - ataEleicaoDiretoria
-          - quadroSocietario
-          - requerimentoEmpresario
-          - ccmei
