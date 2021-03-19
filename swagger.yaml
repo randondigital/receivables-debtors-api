@@ -297,6 +297,7 @@ components:
       - incorporationDocuments
       - partners
       - proxies
+      - clients
       properties:
         id:
           type: string
@@ -430,6 +431,9 @@ components:
     Client:
       type: object
       description: "Cliente de Fornecedor"
+      required:
+      - name
+      - shareOfRevenue
       properties:
         name:
           type: string
