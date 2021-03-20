@@ -4,7 +4,7 @@ info:
   description: 'Esta é a especificação técnica da API de Antecipação de Recebíveis para implementação por Parceiros (debtors) do Banco Randon.'
   contact:
     email: developers@randon.com.br
-  version: 1.0.1
+  version: 1.1.0
 tags:
 - name: document
   description: Gestão de Títulos de Contas a Pagar relacionados a Notas Fiscais
@@ -410,9 +410,9 @@ components:
       type: object
       description: "Consentimento (aceite) do Fornecedor (Seller) para que o Parceiro (Debtor) compartilhe informações com o Banco Randon."
       required:
-      - name
+      - datetime
       properties:
-        date:
+        datetime:
           type: string
           description: "Data do consentimento"
           example: "2021-01-01"
@@ -442,3 +442,13 @@ components:
           type: number
           format: double
           description: "Percentual do faturamento que esse cliente concentra."
+
+
+    # TODO:
+    # - trocar um aceite por timestamp
+    # - separar em 2 endpoints a lista de fornecedores para que os arquivos não fiquem muito pesados
+    # - incluir o formato binary nos tipos de arquivo
+    # - criar um novo endpoint como POST para enviar um segredo de identificação do fornecedor 
+    #   Retornar a taxa da operação no endpoint (/documents/claim)
+    # Incluir data e hora, e IP no endpoint (/sellers)
+    # Fazer consulta separada para os arquivos no endpoint (/sellers)
