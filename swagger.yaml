@@ -4,17 +4,19 @@ info:
   description: 'Esta é a especificação técnica da API de Antecipação de Recebíveis para implementação por Parceiros (debtors) do Banco Randon.'
   contact:
     email: developers@randon.com.br
-  version: 1.0.1
+  version: 1.0.3
 tags:
 - name: document
   description: Gestão de Títulos de Contas a Pagar relacionados a Notas Fiscais
+- name: seller
+  description: Gestão de dados cadastrais de Cedentes de Títulos (Fornecedores ou Beneficiários)
 paths:
   /documents/list:
     get:
       tags:
       - document
       summary: Listar todos Títulos
-      description: Lista todos os Títulos de Contas a Pagar do Sacado disponíveis para serem antecipados pelos Cedentes
+      description: Lista todos os Títulos de Contas a Pagar do Sacado (Parceiro ou Pagador) disponíveis para serem antecipados pelos Cedentes
       operationId: listDocuments
       responses:
         '200':
@@ -22,17 +24,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ArrayOfDocumentExtended'
+                type: array
+                items:
+                  $ref: '#/components/schemas/DocumentExtended'
   /documents/{sellerId}/list:
     get:
       tags:
       - document
-      summary: Listar Títulos de um Fornecedor
+      summary: Lista todos os Títulos de Contas a Pagar do Sacado (Parceiro ou Pagador) disponíveis para serem antecipados por um Cedente (Fornecedor ou Beneficiário) específico
       operationId: listSellerDocuments
       parameters:
       - name: sellerId
         in: path
-        description: CNPJ do Fornecedor dos Títulos de Contas a Pagar
+        description: CNPJ do Cedente (Fornecedor ou Beneficiário)
         required: true
         schema:
           type: string
@@ -42,12 +46,14 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ArrayOfDocumentExtended'
+                type: array
+                items:
+                  $ref: '#/components/schemas/DocumentExtended'
         '400':
           description: Invalid seller id (CNPJ inválido)
           content: {}
         '404':
-          description: Seller not found (Fornecedor não encontrado)
+          description: Seller not found (Cedente não encontrado)
           content: {}
   /documents/claim:
     post:
@@ -72,13 +78,15 @@ paths:
           content: 
             application/json:
               schema:
-                $ref: '#/components/schemas/ArrayOfDocumentsBasic'
+                type: array
+                items:
+                  $ref: '#/components/schemas/DocumentBasic'
   /sellers:
     get:
       tags:
-      - document
-      summary: Listar todos os Fornecedores
-      description: Lista todos os Fornecedores (Sellers) com relacionamento com o Parceiro que deram consentimento para o compartilhamento de dados com o Banco Randon
+      - seller
+      summary: Listar todos os Cedentes de Títulos (Fornecedores ou Beneficiários)
+      description: Lista todos os Cedentes de Títulos (Fornecedores ou Beneficiários) com relacionamento com o Parceiro que deram consentimento para o compartilhamento de dados com o Banco Randon.
       operationId: getSellers
       responses:
         200:
@@ -89,6 +97,49 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Seller'
+  /sellers/{sellerId}/incorporation-documents:
+    get:
+      tags:
+      - seller
+      summary: Listar documentos de constituição de Cedentes
+      description: Listar todos os documetnos de contituição da Empresa do Cedente de Títulos (Fornecedor ou Beneficiário)
+      operationId: getSellersIncorporationDocuments
+      parameters:
+      - name: sellerId
+        in: path
+        description: CNPJ do Cedente (Fornecedor ou Beneficiário)
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                description: "Documentos de constituição da Empresa do Cedente do Título (Fornecedor ou Beneficiário)
+                              <br>
+                              <br>
+                              LTDA:<br>
+                              - Contrato Social (última atualização)<br>
+                              <br>
+                              S.A.:<br>
+                              - Estatuto Social<br>
+                              - Ata Eleição da Diretoria<br>
+                              - Quadro Societário<br>
+                              <br>
+                              Empresário Individual:<br>
+                              - Requerimento do Empresário<br>
+                              <br>
+                              MEI:<br>
+                              - CCMEI (Certificado da Condição do Microempreendedor Individual)<br>
+                              <br>
+                              EIRELI:<br>
+                              - Contrato Social<br>
+                              - Ata Eleição da Diretoria"
+                items:
+                  $ref: '#/components/schemas/IncorporationDocument'
 components:
   schemas:
     DocumentBasic:
@@ -134,7 +185,7 @@ components:
           properties:
             debtorId:
               type: string
-              description: "Número do CNPJ do Sacado do Título (Cliente ou Pagador ou Parceiro) contra o qual a Nota Fiscal foi emitida (apenas algarismos)"
+              description: "Número do CNPJ do Sacado do Título (Parceiro ou Pagador) contra o qual a Nota Fiscal foi emitida (apenas algarismos)"
               example: "00000000000191"
             invoiceAccessKey:
               type: string
@@ -150,14 +201,6 @@ components:
               description: "Data de vencimento da Parcela do Título de Contas a Pagar"
               example: "2021-01-01"
               format: date
-    ArrayOfDocumentsBasic:
-        type: array
-        items:
-          $ref: '#/components/schemas/DocumentBasic'
-    ArrayOfDocumentExtended:
-      type: array
-      items:
-        $ref: '#/components/schemas/DocumentExtended'
     Contract:
       type: object
       required:
@@ -172,10 +215,15 @@ components:
           description: "Data do Contrato de Antecipação de Recebíveis"
           example: "2021-01-01"
           format: date
+        discountRate:
+          type: string
+          description: "Taxa de desconto aplicada no Contrato de Antecipação de Recebíveis"
+          example: "2021-01-01"
         documents:
           description: "Títulos de Contas a Pagar"
-          allOf:
-          - $ref: '#/components/schemas/ArrayOfDocumentsBasic'
+          type: array
+          items:
+            $ref: '#/components/schemas/DocumentBasic'
     Partner:
       description: "Sócio de empresa"
       required:
@@ -283,7 +331,7 @@ components:
               example: "8930.37"
     Seller:
       type: object
-      description: "Cedente do Título (Fornecedor ou Beneficiário)"
+      description: "Dados básicos do Cedente do Título (Fornecedor ou Beneficiário)"
       required:
       - id
       - name
@@ -319,7 +367,6 @@ components:
           - sociedadeAnonima
           - empresarioIndividual
           - microEmpresarioIndividual
-          - requerimentoEmpresario
           - ccmei
         annualRevenue:
           type: number
@@ -341,6 +388,27 @@ components:
           description: "Consentimento para compartilhamento de informações"
           allOf:
             - $ref: '#/components/schemas/Consent'
+        partners:
+          type: array
+          description: "Sócios da Empresa"
+          items:
+            $ref: '#/components/schemas/Partner'
+        proxies:
+          type: array
+          description: "Representantes legais (É obrigatório informar os dados dos sócios com participação societária acima de 25%, representantes legais e procuradores caso exista)"
+          items:
+            $ref: '#/components/schemas/Proxy'
+        clients:
+          type: array
+          description: "Principais clientes (pelo menos 3)"
+          items:
+            $ref: '#/components/schemas/Client'
+    SellerIncorporationDocument:
+      type: object
+      description: "Documentos de constituição da Empresa do Cedente do Título (Fornecedor ou Beneficiário)"
+      required:
+      - incorporationDocuments
+      properties:
         incorporationDocuments:
           type: array
           description: "Documento de constituição de uma Empresa.
@@ -364,21 +432,6 @@ components:
                         - Ata Eleição da Diretoria"          
           items:
             $ref: '#/components/schemas/IncorporationDocument'
-        partners:
-          type: array
-          description: "Sócios da Empresa"
-          items:
-            $ref: '#/components/schemas/Partner'
-        proxies:
-          type: array
-          description: "Representantes legais (É obrigatório informar os dados dos sócios com participação societária acima de 25%, representantes legais e procuradores caso exista)"
-          items:
-            $ref: '#/components/schemas/Proxy'
-        clients:
-          type: array
-          description: "Principais clientes (pelo menos 3)"
-          items:
-            $ref: '#/components/schemas/Client'
     Address:
       type: object
       required:
@@ -410,13 +463,13 @@ components:
       type: object
       description: "Consentimento (aceite) do Fornecedor (Seller) para que o Parceiro (Debtor) compartilhe informações com o Banco Randon."
       required:
-      - name
+      - datetime
       properties:
-        date:
+        datetime:
           type: string
-          description: "Data do consentimento"
-          example: "2021-01-01"
-          format: date
+          description: "Data do consentimento (formato conforme RFC 3339, seção 5.6 https://tools.ietf.org/html/rfc3339#section-5.6)"
+          example: "2021-01-25T17:32:28Z"
+          format: date-time
         userId:
           type: string
           description: "Identificador de usuário (no sistema do Parceiro) que realizou o consentimento"
@@ -442,3 +495,13 @@ components:
           type: number
           format: double
           description: "Percentual do faturamento que esse cliente concentra."
+
+
+    # TODO:
+    # - trocar um aceite por timestamp
+    # - separar em 2 endpoints a lista de fornecedores para que os arquivos não fiquem muito pesados
+    # - incluir o formato binary nos tipos de arquivo
+    # - criar um novo endpoint como POST para enviar um segredo de identificação do fornecedor 
+    #   Retornar a taxa da operação no endpoint (/documents/claim)
+    # Incluir data e hora, e IP no endpoint (/sellers)
+    # Fazer consulta separada para os arquivos no endpoint (/sellers)
