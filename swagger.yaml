@@ -35,7 +35,8 @@ paths:
     get:
       tags:
       - document
-      summary: Lista todos os Títulos de Contas a Pagar do Sacado (Parceiro ou Pagador) disponíveis para serem antecipados por um Cedente (Fornecedor ou Beneficiário) específico
+      summary: Listar Títulos de Cedente (Fornecedor ou Beneficiário)
+      description: Lista todos os Títulos de Contas a Pagar do Sacado (Parceiro ou Pagador) disponíveis para serem antecipados por um Cedente (Fornecedor ou Beneficiário) específico
       operationId: listSellerDocuments
       parameters:
       - name: sellerId
