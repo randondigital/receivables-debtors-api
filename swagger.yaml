@@ -4,12 +4,16 @@ info:
   description: 'Esta é a especificação técnica da API de Antecipação de Recebíveis para implementação por Parceiros (debtors) do Banco Randon.'
   contact:
     email: developers@randon.com.br
-  version: 1.0.3
+  version: 1.0.4
 tags:
 - name: document
   description: Gestão de Títulos de Contas a Pagar relacionados a Notas Fiscais
 - name: seller
   description: Gestão de dados cadastrais de Cedentes de Títulos (Fornecedores ou Beneficiários)
+- name: juridicalPerson
+  description: Gestão de documentos de Pessoas Jurídicas
+- name: naturalPerson
+  description: Gestão de documentos de Pessoas Físicas
 paths:
   /documents/list:
     get:
@@ -97,17 +101,35 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Seller'
-  /sellers/{sellerId}/incorporation-documents:
+  /juridical-person/{id}/documents:
     get:
       tags:
-      - seller
-      summary: Listar documentos de constituição de Cedentes
-      description: Listar todos os documetnos de contituição da Empresa do Cedente de Títulos (Fornecedor ou Beneficiário)
-      operationId: getSellersIncorporationDocuments
+      - juridicalPerson
+      summary: Listar documentos de uma Pessoa Jurídica
+      description: "Listar todos os documentos de contituição de uma Pessoa Jurídica (e.g., Empresa do Cedente de Títulos (Fornecedor ou Beneficiário)).      
+                    <br>
+                    Sociedade de Responsabilidade Limitada (Ltda):<br>
+                    - Contrato Social (última atualização)<br>
+                    <br>
+                    Sociedade Anônima (S.A.):<br>
+                    - Estatuto Social<br>
+                    - Ata Eleição da Diretoria<br>
+                    - Quadro Societário<br>
+                    <br>
+                    Empresário Individual (EI):<br>
+                    - Requerimento do Empresário<br>
+                    <br>
+                    Microempreendedor Individual (MEI):<br>
+                    - CCMEI (Certificado da Condição do Microempreendedor Individual)<br>
+                    <br>
+                    Empresa Individual de Responsabilidade Limitada (EIRELI):<br>
+                    - Contrato Social<br>
+                    - Ata Eleição da Diretoria"
+      operationId: getJuridicalPersonDocuments
       parameters:
-      - name: sellerId
+      - name: id
         in: path
-        description: CNPJ do Cedente (Fornecedor ou Beneficiário)
+        description: CNPJ da Pessoa Jurídica
         required: true
         schema:
           type: string
@@ -118,30 +140,124 @@ paths:
             application/json:
               schema:
                 type: array
-                description: "Documentos de constituição da Empresa do Cedente do Título (Fornecedor ou Beneficiário)
-                              <br>
-                              <br>
-                              LTDA:<br>
-                              - Contrato Social (última atualização)<br>
-                              <br>
-                              S.A.:<br>
-                              - Estatuto Social<br>
-                              - Ata Eleição da Diretoria<br>
-                              - Quadro Societário<br>
-                              <br>
-                              Empresário Individual:<br>
-                              - Requerimento do Empresário<br>
-                              <br>
-                              MEI:<br>
-                              - CCMEI (Certificado da Condição do Microempreendedor Individual)<br>
-                              <br>
-                              EIRELI:<br>
-                              - Contrato Social<br>
-                              - Ata Eleição da Diretoria"
+                description: "Documentos de uma Pessoa Jurídica"
                 items:
-                  $ref: '#/components/schemas/IncorporationDocument'
+                  $ref: '#/components/schemas/JuridicalPersonDocument'
+  /natural-person/{id}/documents:
+    get:
+      tags:
+      - naturalPerson
+      summary: Listar documentos de uma Pessoa Física
+      description: "Listar todos os documentos de uma Pessoa Física.
+                    <br><br>
+                    Arquivos representantes legais e procuradores:
+                    <br>
+                    - Arquivo de Documento de Identificação Pessoal (CNH ou RG)<br>
+                    - Comprovante de endereço<br>
+                    - Procuração"
+      operationId: getNaturalPersonDocuments
+      parameters:
+      - name: id
+        in: path
+        description: CPF da Pessoa Física
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                description: "Documentos de uma Pessoa Física"
+                items:
+                  $ref: '#/components/schemas/NaturalPersonDocument'
 components:
   schemas:
+    Address:
+      type: object
+      required:
+      - line1
+      - number
+      - city
+      - state
+      - zipCode
+      properties:
+        line1:
+          type: string
+          description: "Logradouro (Rua, Avenida, etc.)"
+        number:
+          type: string
+          description: "Número"
+        line2:
+          type: string
+          description: "Complemento"
+        city:
+          type: string
+          description: "Cidade"
+        state:
+          type: string
+          description: "Sigla da Unidade Federativa (RS, SC, SP, etc.)"
+        zipCode:
+          type: string
+          description: "CEP"
+    Client:
+      type: object
+      description: "Cliente de Fornecedor"
+      required:
+      - name
+      - shareOfRevenue
+      properties:
+        name:
+          type: string
+          description: "Nome do cliente"
+        shareOfRevenue:
+          type: number
+          format: double
+          description: "Percentual do faturamento que esse cliente concentra."
+    Consent:
+      type: object
+      description: "Consentimento (aceite) do Fornecedor (Seller) para que o Parceiro (Debtor) compartilhe informações com o Banco Randon."
+      required:
+      - datetime
+      properties:
+        datetime:
+          type: string
+          description: "Data do consentimento (formato conforme RFC 3339, seção 5.6 https://tools.ietf.org/html/rfc3339#section-5.6)"
+          example: "2021-01-25T17:32:28Z"
+          format: date-time
+        ip:
+          type: string
+          description: "Endereço de IP (Internet Protocol) do usuário que realizou o consentimento"
+          example: "185.211.103.56"
+        userId:
+          type: string
+          description: "Identificador de usuário (no sistema do Parceiro) que realizou o consentimento"
+    Contract:
+      type: object
+      required:
+      - contractId
+      - documents
+      properties:
+        contractId:
+          type: string
+          description: "Número do Contrato de Antecipação de Recebíveis"
+        contractDate:
+          type: string
+          description: "Data do Contrato de Antecipação de Recebíveis"
+          example: "2021-01-01"
+          format: date
+        discountRate:
+          type: number
+          description: "Taxa de desconto aplicada no Contrato de Antecipação de Recebíveis"
+          format: double
+          example: 1.5
+        documents:
+          description: "Títulos de Contas a Pagar"
+          type: array
+          items:
+            $ref: '#/components/schemas/DocumentBasic'
     DocumentBasic:
       type: object
       required:
@@ -201,67 +317,24 @@ components:
               description: "Data de vencimento da Parcela do Título de Contas a Pagar"
               example: "2021-01-01"
               format: date
-    Contract:
+    JuridicalPersonDocument:
       type: object
-      required:
-      - contractId
-      - documents
+      description: "Documento de Pessoa Jurídica"
       properties:
-        contractId:
+        type:
           type: string
-          description: "Número do Contrato de Antecipação de Recebíveis"
-        contractDate:
+          description: "Tipo do documento de Pessoa Jurídica"
+          enum:
+          - contratoSocial
+          - estatutoSocial
+          - ataEleicaoDiretoria
+          - quadroSocietario
+          - requerimentoEmpresario
+          - ccmei
+        file:
           type: string
-          description: "Data do Contrato de Antecipação de Recebíveis"
-          example: "2021-01-01"
-          format: date
-        discountRate:
-          type: string
-          description: "Taxa de desconto aplicada no Contrato de Antecipação de Recebíveis"
-          example: "2021-01-01"
-        documents:
-          description: "Títulos de Contas a Pagar"
-          type: array
-          items:
-            $ref: '#/components/schemas/DocumentBasic'
-    Partner:
-      description: "Sócio de empresa"
-      required:
-      - name
-      allOf:
-        - $ref: '#/components/schemas/NaturalPersonBasic'
-        - type: object
-          required:
-          - dateOfBirth
-          - nationality
-          - civilStatus
-          - motherName
-          - address
-          - monthlyIncome
-          properties:
-            partnershipEquity:
-              type: string
-              description: "Percentual de participação do sócio na empresa"
-    Proxy:
-      description: "Representante legal da empresa"
-      required:
-      - name
-      allOf:
-        - $ref: '#/components/schemas/NaturalPersonExtended'
-        - type: object
-          required:
-          - fileId
-          - fileAddress
-          properties:
-            fileId:
-              type: string
-              description: "Arquivo de Documento de Identificação Pessoal (CNH ou RG)"
-            fileAddress:
-              type: string
-              description: "Arquivo de Comprovante de Endereço"
-            fileProxy:
-              type: string
-              description: "Arquivo de Procuração do Representante legal"
+          description: "Arquivo do Documento"
+          format: binary
     NaturalPersonBasic:
       type: object
       description: "Dados cadastrais (profile) de uma Pessoa Física"
@@ -329,6 +402,65 @@ components:
               description: "Renda ou Salário Mensal"
               format: double
               example: "8930.37"
+    NaturalPersonDocument:
+      type: object
+      description: "Documento de Pessoa Física"
+      properties:
+        type:
+          type: string
+          description: "Tipo do documento de Pessoa Física
+                        <br><br>
+                        id: Arquivo de Documento de Identificação Pessoal (CNH ou RG)
+                        <br>
+                        address: Arquivo de Comprovante de Endereço
+                        <br>
+                        proxyStatement: Arquivo de Procuração do Representante legal"
+          enum:
+          - id
+          - address
+          - proxyStatement
+        file:
+          type: string
+          description: "Arquivo"
+          format: binary
+    Partner:
+      description: "Sócio de empresa"
+      required:
+      - name
+      allOf:
+        - $ref: '#/components/schemas/NaturalPersonBasic'
+        - type: object
+          required:
+          - dateOfBirth
+          - nationality
+          - civilStatus
+          - motherName
+          - address
+          - monthlyIncome
+          properties:
+            partnershipEquity:
+              type: string
+              description: "Percentual de participação do sócio na empresa"
+    Proxy:
+      description: "Representante legal da empresa"
+      required:
+      - name
+      allOf:
+        - $ref: '#/components/schemas/NaturalPersonExtended'
+        - type: object
+          required:
+          - fileId
+          - fileAddress
+          properties:
+            fileId:
+              type: string
+              description: "Arquivo de Documento de Identificação Pessoal (CNH ou RG)"
+            fileAddress:
+              type: string
+              description: "Arquivo de Comprovante de Endereço"
+            fileProxy:
+              type: string
+              description: "Arquivo de Procuração do Representante legal"
     Seller:
       type: object
       description: "Dados básicos do Cedente do Título (Fornecedor ou Beneficiário)"
@@ -342,7 +474,6 @@ components:
       - phone
       - email
       - consent
-      - incorporationDocuments
       - partners
       - proxies
       - clients
@@ -361,13 +492,20 @@ components:
           format: date
         type:
           type: string
-          description: "Natureza Jurídica da Empresa"
+          description: "Natureza Jurídica da Empresa.
+                      <br><br>
+                      ltda: Sociedade de Responsabilidade Limitada<br>
+                      sa: Sociedade Anônima<br>
+                      ei: Empresário Individual<br>
+                      mei: Microempreendedor Individual<br>
+                      eireli: Empresa Individual de Responsabilidade Limitada<br>
+                      "
           enum:
-          - responsabilidadeLimitada
-          - sociedadeAnonima
-          - empresarioIndividual
-          - microEmpresarioIndividual
-          - ccmei
+          - ltda
+          - sa
+          - ei
+          - mei
+          - eireli
         annualRevenue:
           type: number
           description: "Faturamento do últimos 12 meses em Reais"       
@@ -403,105 +541,3 @@ components:
           description: "Principais clientes (pelo menos 3)"
           items:
             $ref: '#/components/schemas/Client'
-    SellerIncorporationDocument:
-      type: object
-      description: "Documentos de constituição da Empresa do Cedente do Título (Fornecedor ou Beneficiário)"
-      required:
-      - incorporationDocuments
-      properties:
-        incorporationDocuments:
-          type: array
-          description: "Documento de constituição de uma Empresa.
-                        <br>
-                        LTDA:<br>
-                        - Contrato Social (última atualização)<br>
-                        <br>
-                        S.A.:<br>
-                        - Estatuto Social<br>
-                        - Ata Eleição da Diretoria<br>
-                        - Quadro Societário<br>
-                        <br>
-                        Empresário Individual:<br>
-                        - Requerimento do Empresário<br>
-                        <br>
-                        MEI:<br>
-                        - CCMEI (Certificado da Condição do Microempreendedor Individual)<br>
-                        <br>
-                        EIRELI:<br>
-                        - Contrato Social<br>
-                        - Ata Eleição da Diretoria"          
-          items:
-            $ref: '#/components/schemas/IncorporationDocument'
-    Address:
-      type: object
-      required:
-      - line1
-      - number
-      - city
-      - state
-      - zipCode
-      properties:
-        line1:
-          type: string
-          description: "Logradouro (Rua, Avenida, etc.)"
-        number:
-          type: string
-          description: "Número"
-        line2:
-          type: string
-          description: "Complemento"
-        city:
-          type: string
-          description: "Cidade"
-        state:
-          type: string
-          description: "Sigla da Unidade Federativa (RS, SC, SP, etc.)"
-        zipCode:
-          type: string
-          description: "CEP"
-    Consent:
-      type: object
-      description: "Consentimento (aceite) do Fornecedor (Seller) para que o Parceiro (Debtor) compartilhe informações com o Banco Randon."
-      required:
-      - datetime
-      properties:
-        datetime:
-          type: string
-          description: "Data do consentimento (formato conforme RFC 3339, seção 5.6 https://tools.ietf.org/html/rfc3339#section-5.6)"
-          example: "2021-01-25T17:32:28Z"
-          format: date-time
-        userId:
-          type: string
-          description: "Identificador de usuário (no sistema do Parceiro) que realizou o consentimento"
-    IncorporationDocument:
-      type: object
-      description: "Documento de constituição de uma Empresa"
-      properties:
-        file:
-          type: string
-          description: "Arquivo do Documento"
-          format: binary
-    Client:
-      type: object
-      description: "Cliente de Fornecedor"
-      required:
-      - name
-      - shareOfRevenue
-      properties:
-        name:
-          type: string
-          description: "Nome do cliente"
-        shareOfRevenue:
-          type: number
-          format: double
-          description: "Percentual do faturamento que esse cliente concentra."
-
-
-    # TODO:
-    # - trocar um aceite por timestamp
-    # - separar em 2 endpoints a lista de fornecedores para que os arquivos não fiquem muito pesados
-    # - incluir o formato binary nos tipos de arquivo
-    # - criar um novo endpoint como POST para enviar um segredo de identificação do fornecedor 
-    #   Retornar a taxa da operação no endpoint (/documents/claim)
-    # Incluir data e hora, e IP no endpoint (/sellers)
-    # Fazer consulta separada para os arquivos no endpoint (/sellers)
