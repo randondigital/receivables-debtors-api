@@ -125,6 +125,10 @@ paths:
                     <br>
                     Empresa Individual de Responsabilidade Limitada (EIRELI):<br>
                     - Contrato Social<br>
+                    - Ata Eleição da Diretoria<br>
+                    <br>
+                    Cooperativas:<br>
+                    - Estatuto Social<br>
                     - Ata Eleição da Diretoria"
       operationId: getJuridicalPersonDocuments
       parameters:
