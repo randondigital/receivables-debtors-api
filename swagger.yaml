@@ -258,6 +258,11 @@ components:
           description: "Taxa de desconto aplicada no Contrato de Antecipação de Recebíveis"
           format: double
           example: 1.5
+        paidAmount:
+          type: number
+          description: "Valor liquido pago pelo Banco Randon ao Cedente (Fornecedor ou Beneficiário) pelos Títulos antecipados"
+          format: double
+          example: 9500.00
         documents:
           description: "Títulos de Contas a Pagar"
           type: array
