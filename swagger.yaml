@@ -4,7 +4,7 @@ info:
   description: 'Esta é a especificação técnica da API de Antecipação de Recebíveis para implementação por Parceiros (debtors) do Banco Randon.'
   contact:
     email: developers@randon.com.br
-  version: 1.0.4
+  version: 1.0.5
 tags:
 - name: document
   description: Gestão de Títulos de Contas a Pagar relacionados a Notas Fiscais
@@ -271,8 +271,6 @@ components:
     DocumentBasic:
       type: object
       required:
-      - invoiceId
-      - invoiceSeries
       - sellerId
       - debtorId
       - documentId
