@@ -1,10 +1,10 @@
 openapi: 3.0.1
 info:
-  title: API Antecipação de Recebíveis
+  title: Banco Randon - Debtors API
   description: 'Esta é a especificação técnica da API de Antecipação de Recebíveis para implementação por Parceiros (debtors) do Banco Randon.'
   contact:
     email: developers@randon.com.br
-  version: 1.0.5
+  version: 1.0.6
 tags:
 - name: document
   description: Gestão de Títulos de Contas a Pagar relacionados a Notas Fiscais
@@ -77,15 +77,22 @@ paths:
       responses:
         200:
           description: OK
-          content: {}
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
         404:
           description: Documents not found (Documentos não encontrados)
           content: 
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/DocumentBasic'
+                $ref: '#/components/schemas/ErrorDocumentsClaim404'
+        409:
+          description: Could not claim documents (Documentos não puderam ser registrados como antecipados)
+          content: 
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDocumentsClaim409'
   /sellers:
     get:
       tags:
@@ -549,3 +556,48 @@ components:
           description: "Principais clientes (pelo menos 3)"
           items:
             $ref: '#/components/schemas/Client'
+    Success:
+      type: object
+      description: "Retorno de sucesso de um endpoint"
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: "Mensagem de sucesso, preferencialmente em inglês"
+          example: "Success claiming documents"
+    Error:
+      type: object
+      description: "Retorno de erro de um endpoint"
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: "Mensagem de erro, preferencialmente em inglês (pode incluir códigos, metadados, etc.)"
+          example: "Could not claim documents because some or all of them do not exist."
+    ErrorDocumentsClaim404:
+      type: object
+      description: "Erro HTTP 404 do endpoint /documents/claim"
+      allOf:
+        - $ref: '#/components/schemas/Error'
+        - type: object
+          required:
+          - documentsNotFound
+          properties:
+            documentsNotFound:
+              type: array
+              items:
+                $ref: '#/components/schemas/DocumentBasic'
+    ErrorDocumentsClaim409:
+      type: object
+      description: "Erro HTTP 409 do endpoint /documents/claim"
+      allOf:
+        - $ref: '#/components/schemas/Error'
+        - type: object
+          required:
+          - message
+          properties:
+            message:
+              type: string
+              example: "Could not claim documents because they are not available."
