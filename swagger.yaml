@@ -4,7 +4,7 @@ info:
   description: 'Esta é a especificação técnica da API de Antecipação de Recebíveis para implementação por Parceiros (debtors) do Banco Randon.'
   contact:
     email: developers@randon.com.br
-  version: 1.0.6
+  version: 1.0.7
 tags:
 - name: document
   description: Gestão de Títulos de Contas a Pagar relacionados a Notas Fiscais
@@ -274,7 +274,7 @@ components:
           description: "Títulos de Contas a Pagar"
           type: array
           items:
-            $ref: '#/components/schemas/DocumentBasic'
+            $ref: '#/components/schemas/DocumentClaimed'
     DocumentBasic:
       type: object
       required:
@@ -291,6 +291,9 @@ components:
         documentInstallment:
           type: integer
           description: "Número da Parcela do Título de Contas a Pagar"
+        documentDescription:
+          type: string
+          description: "Descrição do Título de Contas a Pagar que será exibida ao usuário no Portal de Antecipação de Recebíveis do Banco Randon"
         invoiceId:
           type: integer
           description: "Número da Nota Fiscal"
@@ -306,6 +309,18 @@ components:
         netAmount:
           type: number
           description: "Valor Líquido da Parcela do Título de Contas a Pagar, ou seja, o valor possível de ser antecipado pelo Cedente"
+    DocumentClaimed:
+      allOf:
+        - $ref: '#/components/schemas/DocumentBasic'
+        - type: object
+          required:
+          - paidAmount
+          properties:
+            paidAmount:
+              type: number
+              description: "Valor liquido pago pelo Banco Randon ao Cedente (Fornecedor ou Beneficiário) pelo Título antecipado"
+              format: double
+              example: 9500.00
     DocumentExtended:
       allOf:
         - $ref: '#/components/schemas/DocumentBasic'
