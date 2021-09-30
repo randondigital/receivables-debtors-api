@@ -1,4 +1,4 @@
-openapi: 3.0.1
+openapi: 3.0.3
 info:
   title: Banco Randon - Debtors API
   description: 'Esta é a especificação técnica da API de Antecipação de Recebíveis para implementação por Parceiros (debtors) do Banco Randon.'
@@ -15,22 +15,6 @@ tags:
 - name: naturalPerson
   description: Gestão de documentos de Pessoas Físicas
 paths:
-  /documents/list:
-    get:
-      tags:
-      - document
-      summary: Listar todos Títulos
-      description: Lista todos os Títulos de Contas a Pagar do Sacado (Parceiro ou Pagador) disponíveis para serem antecipados pelos Cedentes
-      operationId: listDocuments
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/DocumentExtended'
   /documents/{sellerId}/list:
     get:
       tags:
