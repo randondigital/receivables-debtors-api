@@ -277,7 +277,7 @@ components:
           description: "Número da Parcela do Título de Contas a Pagar"
         documentDescription:
           type: string
-          description: "Descrição do Título de Contas a Pagar que será exibida ao usuário no Portal de Antecipação de Recebíveis do Banco Randon"
+          description: 'Descrição do Título de Contas a Pagar que será exibida ao usuário no Portal de Antecipação de Recebíveis do Banco Randon, caso não tenha informação extra, pode utilizar o "documentId".'
         invoiceId:
           type: integer
           description: "Número da Nota Fiscal"
